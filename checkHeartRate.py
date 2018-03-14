@@ -15,13 +15,12 @@
 #!/usr/bin/python
 
 import time
-import datetime
 import json
 from google.cloud import pubsub
 from oauth2client.client import GoogleCredentials
 import RPi.GPIO as io # import the GPIO library we just installed but call it "io"
 
-SAMPLE_COUNT = 10
+SAMPLE_COUNT_THRESHOLD = 10
  
 ## set GPIO mode to BCM
 ## this takes GPIO number instead of pin number
@@ -38,38 +37,59 @@ io.output(LED_in, io.HIGH) # start with LED off
  
 ## indicate that everything is ready to receive the heartbeat signal
 print "Waiting for heartbeat"
- 
+
 ## this try block looks for 1 values (indicate a beat) from the transmitter
 try:
-    firstBeatTime = time.time()
+    # firstBeatTime = time.time()
+    totalSampleCounter = 0
     sampleCounter = 0
+
     while True:
-        if sampleCounter == 0: 
-            firstBeatTime = time.time()
+        # if sampleCounter == 0: 
+        #    firstBeatTime = time.time()
+        #    print "firstBeatTime: " + str(firstBeatTime)
 
-        ## sample will either be 1 or 0
-        sample = io.input(receiver_in)
+        ## inputReceived will either be 1 or 0
+        inputReceived = io.input(receiver_in)
 
-        if sample == 1:
-            io.output(LED_in, io.LOW) # turn LED on
-            sampleCounter = sampleCounter + 1
-            if sampleCounter == SAMPLE_COUNT:
+        if inputReceived == 1 and previousInput == 0:
+            # io.output(LED_in, io.LOW) # turn LED on
+            previousInput = inputReceived
+            if totalSampleCounter == 0:
+                totalSampleCounter = 1
+                firstBeatTime = time.time()
+            else:
+                totalSampleCounter = totalSampleCounter + 1
+                sampleCounter = sampleCounter + 1
+            # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
+            if sampleCounter == SAMPLE_COUNT_THRESHOLD:
                 sampleCounter = 0 # reset the sample counter
 
                 # calculate beats per minute given the SAMPLE_COUNT
-                sampleMinutes = (time.time() - firstBeatTime)/60
-                bpm = sampleMinutes * SAMPLE_COUNT
+                sampleSeconds = time.time() - firstBeatTime
+                # print 'Sample Seconds: ' + str(sampleSeconds)
+                sampleSecondsPerBeat = sampleSeconds/SAMPLE_COUNT_THRESHOLD
+               	# print 'Sample Seconds Per Beat: ' + str(sampleSecondsPerBeat)
+                bpm = 60/sampleSecondsPerBeat
 
                 # show beats per minute
-                currentBPM = bpm + ' bpm'
+                currentBPM = str(bpm) + ' bpm'
                 print currentBPM
+
+                firstBeatTime = time.time()
+
+        elif inputReceived == 1 and previousInput == 1:
+            previousInput = inputReceived
         else:
             io.output(LED_in, io.HIGH) # turn LED off
- 
-        # Set the previous sample to the current sample so that it can be used to
-        # evaluate if at the front edge of the heartbeat and not count it more than
-        # once if already in the high position
-        previousSample = sample
+          
+            # Set the previous sample to the current sample so that it can be used to
+            # evaluate if at the front edge of the heartbeat and not count it more than
+            # once if already in the high position          
+            previousInput = inputReceived
+
+
 ## this allows you to end the script with ctrl+c
-except:
+except Exception as e:
     print "There was an error"
+    print (e)
