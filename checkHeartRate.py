@@ -47,8 +47,8 @@ def publish_message(project_name, topic_name, data):
   except:
       print "There was an error publishing heartrate data."
 
- 
- def createJSON(id, timestamp, heartrate):
+
+def createJSON(id, timestamp, heartrate):
     data = {
       'sensorID' : id,
       'timecollected' : timestamp,
