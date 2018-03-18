@@ -19,7 +19,7 @@ import datetime
 import json
 from google.cloud import pubsub
 from oauth2client.client import GoogleCredentials
-import RPi.GPIO as io # import the GPIO library we just installed but call it "io"
+import RPi.GPIO as io
 from tendo import singleton
 
 me = singleton.SingleInstance() # will sys.exit(-1) if another instance is running
@@ -28,9 +28,9 @@ me = singleton.SingleInstance() # will sys.exit(-1) if another instance is runni
 project="codelab-testing-198216"  # change project to your Project ID
 topic = "heartratedata"  # change topic to your PubSub topic name
 sensorID = "s-testing"  # change to a descriptive name for your sensor
-rejectBPM = 45 # a BPM reading threshold that is too low and likely to have come from a poor connection (either of the chest strap or the wireless connection between the strap and the receiver)
-heartbeatsToCount = 10 # number of heart beats to sample before calculating BPM
-receiver_in = 23 # this is the GPIO number our receiver is connected to
+rejectBPM = 45 # reject anything that is below this BPM threshold
+heartbeatsToCount = 10 # number of heart beats to sample before calculating an average BPM
+receiver_in = 23 # GPIO pin number that the receiver is connected to
 credentials = GoogleCredentials.get_application_default()
  
 ## set GPIO mode to BCM -- this takes GPIO number instead of pin number
@@ -67,14 +67,14 @@ def calcBPM(startTime, endTime):
 
  
 def monitorForPulse():
-    totalSampleCounter = 0
-    sampleCounter = -1
-    previousInput = 0
-    lastPulseTime = 0
-    thisPulseTime = 0
-    firstSampleTime = 0
-    lastSampleTime = 0
-    instantBPM = 0
+    totalSampleCounter = 0 # total heartbeats measured
+    sampleCounter = -1 # counter to determine when to calculate an average BPM
+    previousInput = 0 # indicator of whether the last sensor input has high or low
+    lastPulseTime = 0 # time of the last heart beat
+    thisPulseTime = 0 # time of this heart beat
+    firstSampleTime = 0 # time of first heart beat for calculating an average BPM
+    lastSampleTime = 0 # time of the last heart beat for calculating an average BPM
+    instantBPM = 0 # BPM calculated from the time between two heartbeats
 
     ## this try block looks for 1 values (indicate a beat) from the transmitter
     try:
@@ -86,6 +86,8 @@ def monitorForPulse():
             if inputReceived == 1:
                 if previousInput == 0: # the heart beat signal went from low to high
                     totalSampleCounter = totalSampleCounter + 1
+                    if totalSampleCounter == 1: # the very first beat since the program started running
+                        print "Receiving heart beat signals"
                 
                     if sampleCounter == -1: # the first beat received since the counter was reset
                         sampleCounter = 0
@@ -107,8 +109,6 @@ def monitorForPulse():
                         
             previousInput = inputReceived
 
-
-    ## this allows you to end the script with ctrl+c
     except Exception as e:
         print "There was an error"
         print (e)
@@ -116,10 +116,8 @@ def monitorForPulse():
 
 def main():
 
-    io.setup(receiver_in, io.IN) # initialize receiver GPIO to take input
-    
-    ## indicate that everything is ready to receive the heartbeat signal
-    print "Waiting for heartbeat"
+    io.setup(receiver_in, io.IN) # initialize receiver GPIO to the pin that will take input
+    print "Ready. Waiting for signal."
     monitorForPulse()
 
 if __name__ == '__main__':
