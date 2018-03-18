@@ -60,20 +60,21 @@ def createJSON(id, timestamp, heartrate):
     return json_str
 
 def monitorForPulse():
+    totalSampleCounter = 0
+    sampleCounter = -1
+    previousInput = 0
+    lastPulseTime = 0
+    thisPulseTime = 0
+    firstSampleTime = 0
+    lastSampleTime = 0
+    instantBPM = 0
+
     ## this try block looks for 1 values (indicate a beat) from the transmitter
     try:
-        totalSampleCounter = 0
-        sampleCounter = -1
-        previousInput = 0
-        lastPulseTime = 0
-        thisPulseTime = 0
-        firstSampleTime = 0
-        lastSampleTime = 0
-        instantBPM = 0
 
         while True:
-            ## inputReceived will either be 1 or 0
-            inputReceived = io.input(receiver_in)
+            
+            inputReceived = io.input(receiver_in) # inputReceived will either be 1 or 0
 
             if inputReceived == 1:
                 if previousInput == 0: # the heart beat signal went from low to high
@@ -81,18 +82,18 @@ def monitorForPulse():
                 
                     if sampleCounter == -1: # the first beat received since the counter was reset
                         sampleCounter = 0
-                        firstSampleTime = time.time()
+                        firstSampleTime = time.time() # set the time to start counting beats
                         lastPulseTime = firstSampleTime
                     else:
                         sampleCounter = sampleCounter + 1
                         thisPulseTime = time.time()
                         instantBPM = 60/(thisPulseTime - lastPulseTime)
-                        # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
-                        print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
+                        # print "Total measured beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
                         lastPulseTime = thisPulseTime
-                    if sampleCounter == heartbeatsToCount:
-                        lastSampleTime = lastPulseTime
+                        
+                    if sampleCounter == heartbeatsToCount: # time to calculate the average BPM
                         sampleCounter = -1 # reset the sample counter
+                        lastSampleTime = lastPulseTime # set the time the last beat was detected
 
                         # calculate time gap between first and last heartbeat
                         sampleSeconds = lastSampleTime - firstSampleTime
@@ -105,7 +106,8 @@ def monitorForPulse():
                         publish_message(project, topic, heartrateJSON)
                         # print currentBPM
                         print "seconds: " + str(sampleSeconds)
-                        time.sleep(5)
+                        time.sleep(5) # wait to allow the message publication process to finish (it can interfere with capturing heart beat signals)
+                        
             previousInput = inputReceived
 
 
