@@ -63,7 +63,7 @@ def monitorForPulse():
     ## this try block looks for 1 values (indicate a beat) from the transmitter
     try:
         totalSampleCounter = 0
-        sampleCounter = 0
+        sampleCounter = -1
         previousInput = 0
         lastPulseTime = 0
         thisPulseTime = 0
@@ -77,12 +77,13 @@ def monitorForPulse():
 
             if inputReceived == 1:
                 if previousInput == 0: # the heart beat signal went from low to high
-                    if totalSampleCounter == 0: # the first beat received since the program started
-                        totalSampleCounter = 1
+                    totalSampleCounter = totalSampleCounter + 1
+                
+                    if sampleCounter == -1: # the first beat received since the counter was reset
+                        sampleCounter = 0
                         firstSampleTime = time.time()
                         lastPulseTime = firstSampleTime
                     else:
-                        totalSampleCounter = totalSampleCounter + 1
                         sampleCounter = sampleCounter + 1
                         thisPulseTime = time.time()
                         instantBPM = 60/(thisPulseTime - lastPulseTime)
@@ -90,8 +91,8 @@ def monitorForPulse():
                         print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
                         lastPulseTime = thisPulseTime
                     if sampleCounter == heartbeatsToCount:
-                        lastSampleTime = time.time()
-                        sampleCounter = 0 # reset the sample counter
+                        lastSampleTime = lastPulseTime
+                        sampleCounter = -1 # reset the sample counter
 
                         # calculate time gap between first and last heartbeat
                         sampleSeconds = lastSampleTime - firstSampleTime
