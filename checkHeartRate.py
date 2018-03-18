@@ -28,7 +28,7 @@ me = singleton.SingleInstance() # will sys.exit(-1) if another instance is runni
 project="codelab-testing-198216"  # change project to your Project ID
 topic = "heartratedata"  # change topic to your PubSub topic name
 sensorID = "s-testing"  # change to a descriptive name for your sensor
-
+rejectBPM = 45 # a BPM reading threshold that is too low and likely to have come from a poor connection (either of the chest strap or the wireless connection between the strap and the receiver)
 heartbeatsToCount = 10 # number of heart beats to sample before calculating BPM
 receiver_in = 23 # this is the GPIO number our receiver is connected to
 credentials = GoogleCredentials.get_application_default()
@@ -97,6 +97,8 @@ def monitorForPulse():
                         instantBPM = 60/(thisPulseTime - lastPulseTime)
                         # print "Total measured beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
                         lastPulseTime = thisPulseTime
+                        if instantBPM < rejectBPM: # this heart rate is likely due to a bad connection
+                            sampleCounter = -1 # reset counter so that the bad data isn't included in a BPM average
                         
                     if sampleCounter == heartbeatsToCount: # time to calculate the average BPM
                         sampleCounter = -1 # reset the sample counter
