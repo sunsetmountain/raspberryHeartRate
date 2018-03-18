@@ -95,7 +95,7 @@ def monitorForPulse():
 
                     # calculate time gap between first and last heartbeat
                     sampleSeconds = lastSampleTime - firstSampleTime
-                    bpm = (60/sampleSeconds)*(heartbeatsToCount-1)
+                    bpm = (60/sampleSeconds)*(heartbeatsToCount)
 
                     # show beats per minute
                     currentBPM = str(bpm) + ' bpm'
