@@ -22,13 +22,14 @@ from oauth2client.client import GoogleCredentials
 import RPi.GPIO as io # import the GPIO library we just installed but call it "io"
 
 # constants - change to fit your project and location
-credentials = GoogleCredentials.get_application_default()
+
 # change project to your Project ID
-project="codelab-testing"
+project="codelab-testing-198216"
 # change topic to your PubSub topic name
 topic = "heartratedata"
 # set the following four constants to be indicative of where you are placing your weather sensor
 sensorID = "s-testing"
+credentials = GoogleCredentials.get_application_default()
 
 SAMPLE_COUNT_THRESHOLD = 10
  
@@ -61,7 +62,6 @@ def createJSON(id, timestamp, heartrate):
 def monitorForPulse():
     ## this try block looks for 1 values (indicate a beat) from the transmitter
     try:
-        # firstBeatTime = time.time()
         totalSampleCounter = 0
         sampleCounter = 0
 
