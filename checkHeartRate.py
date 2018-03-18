@@ -31,7 +31,7 @@ topic = "heartratedata"
 sensorID = "s-testing"
 credentials = GoogleCredentials.get_application_default()
 
-SAMPLE_COUNT_THRESHOLD = 10
+heartbeatsToCount = 10 # number of heart beats to sample before calculating BPM
  
 ## set GPIO mode to BCM -- this takes GPIO number instead of pin number
 io.setmode(io.BCM)
@@ -64,6 +64,7 @@ def monitorForPulse():
     try:
         totalSampleCounter = 0
         sampleCounter = 0
+        previousInput = 0
 
         while True:
             ## inputReceived will either be 1 or 0
@@ -71,20 +72,20 @@ def monitorForPulse():
 
             if inputReceived == 1 and previousInput == 0:
                 previousInput = inputReceived
-                if totalSampleCounter == 0:
+                if totalSampleCounter == 0: # the first beat received since the program started
                     totalSampleCounter = 1
                     firstBeatTime = time.time()
                 else:
                     totalSampleCounter = totalSampleCounter + 1
                     sampleCounter = sampleCounter + 1
                 # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
-                if sampleCounter == SAMPLE_COUNT_THRESHOLD:
+                if sampleCounter == heartbeatsToCount:
                     sampleCounter = 0 # reset the sample counter
 
                     # calculate beats per minute given the SAMPLE_COUNT
                     sampleSeconds = time.time() - firstBeatTime
                     # print 'Sample Seconds: ' + str(sampleSeconds)
-                    sampleSecondsPerBeat = sampleSeconds/SAMPLE_COUNT_THRESHOLD
+                    sampleSecondsPerBeat = sampleSeconds/(heartbeatsToCount - 1)
                	    # print 'Sample Seconds Per Beat: ' + str(sampleSecondsPerBeat)
                     bpm = 60/sampleSecondsPerBeat
 
