@@ -23,21 +23,16 @@ import RPi.GPIO as io # import the GPIO library we just installed but call it "i
 
 # constants - change to fit your project and location
 
-# change project to your Project ID
-project="codelab-testing-198216"
-# change topic to your PubSub topic name
-topic = "heartratedata"
-# set the following four constants to be indicative of where you are placing your weather sensor
-sensorID = "s-testing"
-credentials = GoogleCredentials.get_application_default()
-
+project="codelab-testing-198216"  # change project to your Project ID
+topic = "heartratedata"  # change topic to your PubSub topic name
+sensorID = "s-testing"  # change to a descriptive name for your sensor
 heartbeatsToCount = 10 # number of heart beats to sample before calculating BPM
+receiver_in = 23 # this is the GPIO number our receiver is connected to
+credentials = GoogleCredentials.get_application_default()
  
 ## set GPIO mode to BCM -- this takes GPIO number instead of pin number
 io.setmode(io.BCM)
 io.setwarnings(False)
- 
-receiver_in = 23 # this is the GPIO number our receiver is connected to
 
 def publish_message(project_name, topic_name, data):
   try:
@@ -60,7 +55,7 @@ def createJSON(id, timestamp, heartrate):
     return json_str
 
 def calcBPM(startTime, endTime):   
-    sampleSeconds = startTime - endTime  # calculate time gap between first and last heartbeat
+    sampleSeconds = endTime - startTime  # calculate time gap between first and last heartbeat
     bpm = (60/sampleSeconds)*(heartbeatsToCount)
     currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     heartrateJSON = createJSON(sensorID, currentTime, bpm)
