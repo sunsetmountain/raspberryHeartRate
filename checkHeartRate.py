@@ -102,8 +102,9 @@ def monitorForPulse():
                     currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
                     heartrateJSON = createJSON(sensorID, currentTime, currentBPM)
                     publish_message(project, topic, heartrateJSON)
-                    print currentBPM
-
+                    # print currentBPM
+                    print "seconds: " + str(sampleSeconds)
+                    
                     firstSampleTime = lastSampleTime
 
             elif inputReceived == 1 and previousInput == 1:
