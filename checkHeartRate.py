@@ -75,44 +75,37 @@ def monitorForPulse():
             ## inputReceived will either be 1 or 0
             inputReceived = io.input(receiver_in)
 
-            if inputReceived == 1 and previousInput == 0:
-                previousInput = inputReceived
-                if totalSampleCounter == 0: # the first beat received since the program started
-                    totalSampleCounter = 1
-                    firstSampleTime = time.time()
-                    lastPulseTime = firstSampleTime
-                else:
-                    totalSampleCounter = totalSampleCounter + 1
-                    sampleCounter = sampleCounter + 1
-                    thisPulseTime = time.time()
-                    instantBPM = 60/(thisPulseTime - lastPulseTime)
-                    # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
-                    print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
-                    lastPulseTime = thisPulseTime
-                if sampleCounter == heartbeatsToCount:
-                    lastSampleTime = time.time()
-                    sampleCounter = 0 # reset the sample counter
+            if inputReceived == 1:
+                if previousInput == 0: # the heart beat signal went from low to high
+                    if totalSampleCounter == 0: # the first beat received since the program started
+                        totalSampleCounter = 1
+                        firstSampleTime = time.time()
+                        lastPulseTime = firstSampleTime
+                    else:
+                        totalSampleCounter = totalSampleCounter + 1
+                        sampleCounter = sampleCounter + 1
+                        thisPulseTime = time.time()
+                        instantBPM = 60/(thisPulseTime - lastPulseTime)
+                        # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
+                        print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
+                        lastPulseTime = thisPulseTime
+                    if sampleCounter == heartbeatsToCount:
+                        lastSampleTime = time.time()
+                        sampleCounter = 0 # reset the sample counter
 
-                    # calculate time gap between first and last heartbeat
-                    sampleSeconds = lastSampleTime - firstSampleTime
-                    bpm = (60/sampleSeconds)*(heartbeatsToCount)
+                        # calculate time gap between first and last heartbeat
+                        sampleSeconds = lastSampleTime - firstSampleTime
+                        bpm = (60/sampleSeconds)*(heartbeatsToCount)
 
-                    # show beats per minute
-                    currentBPM = str(bpm) + ' bpm'
-                    currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-                    heartrateJSON = createJSON(sensorID, currentTime, currentBPM)
-                    publish_message(project, topic, heartrateJSON)
-                    # print currentBPM
-                    print "seconds: " + str(sampleSeconds)
-                    
-                    firstSampleTime = lastSampleTime
-
-            elif inputReceived == 1 and previousInput == 1:
-                previousInput = inputReceived
-            else:
-                # Set the previous sample to the current sample so that it can be used to
-                # evaluate if at the front edge of the heartbeat and not count it more than
-                # once if already in the high position          
+                        # show beats per minute
+                        currentBPM = str(bpm) + ' bpm'
+                        currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                        heartrateJSON = createJSON(sensorID, currentTime, currentBPM)
+                        publish_message(project, topic, heartrateJSON)
+                        # print currentBPM
+                        print "seconds: " + str(sampleSeconds)
+                        
+                        firstSampleTime = lastSampleTime
                 previousInput = inputReceived
 
 
