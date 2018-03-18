@@ -37,7 +37,6 @@ io.setmode(io.BCM)
 io.setwarnings(False)
  
 receiver_in = 23 # this is the GPIO number our receiver is connected to
-LED_in = 24 # GPIO number the LED is connected to
 
 def publish_message(project_name, topic_name, data):
   try:
@@ -59,17 +58,7 @@ def createJSON(id, timestamp, heartrate):
     json_str = json.dumps(data)
     return json_str
 
-
-def main():
-
-    io.setup(receiver_in, io.IN) # initialize receiver GPIO to take input
-    io.setup(LED_in, io.OUT) # initialized LED GPIO to give output
-     
-    io.output(LED_in, io.HIGH) # start with LED off
-    
-    ## indicate that everything is ready to receive the heartbeat signal
-    print "Waiting for heartbeat"
-    
+def monitorForPulse():
     ## this try block looks for 1 values (indicate a beat) from the transmitter
     try:
         # firstBeatTime = time.time()
@@ -77,15 +66,10 @@ def main():
         sampleCounter = 0
 
         while True:
-            # if sampleCounter == 0: 
-            #    firstBeatTime = time.time()
-            #    print "firstBeatTime: " + str(firstBeatTime)
-
             ## inputReceived will either be 1 or 0
             inputReceived = io.input(receiver_in)
 
             if inputReceived == 1 and previousInput == 0:
-                # io.output(LED_in, io.LOW) # turn LED on
                 previousInput = inputReceived
                 if totalSampleCounter == 0:
                     totalSampleCounter = 1
@@ -128,6 +112,15 @@ def main():
     except Exception as e:
         print "There was an error"
         print (e)
+
+
+def main():
+
+    io.setup(receiver_in, io.IN) # initialize receiver GPIO to take input
+    
+    ## indicate that everything is ready to receive the heartbeat signal
+    print "Waiting for heartbeat"
+    monitorForPulse()
 
 if __name__ == '__main__':
 	   main()
