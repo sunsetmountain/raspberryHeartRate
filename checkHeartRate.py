@@ -105,8 +105,7 @@ def monitorForPulse():
                         publish_message(project, topic, heartrateJSON)
                         # print currentBPM
                         print "seconds: " + str(sampleSeconds)
-                        
-                        firstSampleTime = lastSampleTime
+                        time.sleep(5)
             previousInput = inputReceived
 
 
