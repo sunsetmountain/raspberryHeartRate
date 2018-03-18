@@ -20,6 +20,9 @@ import json
 from google.cloud import pubsub
 from oauth2client.client import GoogleCredentials
 import RPi.GPIO as io # import the GPIO library we just installed but call it "io"
+from tendo import singleton
+
+me = singleton.SingleInstance() # will sys.exit(-1) if another instance is running
 
 # ***change to fit your project***
 project="codelab-testing-198216"  # change project to your Project ID
