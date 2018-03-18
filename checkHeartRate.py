@@ -106,7 +106,7 @@ def monitorForPulse():
                         print "seconds: " + str(sampleSeconds)
                         
                         firstSampleTime = lastSampleTime
-                previousInput = inputReceived
+            previousInput = inputReceived
 
 
     ## this allows you to end the script with ctrl+c
