@@ -65,6 +65,9 @@ def monitorForPulse():
         totalSampleCounter = 0
         sampleCounter = 0
         previousInput = 0
+        lastPulseTime = 0
+        thisPulseTime = 0
+        instantBPM = 0
 
         while True:
             ## inputReceived will either be 1 or 0
@@ -75,11 +78,15 @@ def monitorForPulse():
                 if totalSampleCounter == 0: # the first beat received since the program started
                     totalSampleCounter = 1
                     firstBeatTime = time.time()
+                    lastPulseTime = firstBeatTime
                 else:
                     totalSampleCounter = totalSampleCounter + 1
                     sampleCounter = sampleCounter + 1
+                    thisPulseTime = time.time()
+                    instantBPM = 60/(thisPulseTime - lastPulseTime)
                     # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
-                    print "Total beats: " + str(totalSampleCounter) + ", time: " + str(time.time())
+                    print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM)
+                    lastPulseTime = thisPulseTime
                 if sampleCounter == heartbeatsToCount:
                     sampleCounter = 0 # reset the sample counter
 
