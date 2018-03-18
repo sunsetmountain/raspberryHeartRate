@@ -100,8 +100,6 @@ def monitorForPulse():
             elif inputReceived == 1 and previousInput == 1:
                 previousInput = inputReceived
             else:
-                io.output(LED_in, io.HIGH) # turn LED off
-          
                 # Set the previous sample to the current sample so that it can be used to
                 # evaluate if at the front edge of the heartbeat and not count it more than
                 # once if already in the high position          
