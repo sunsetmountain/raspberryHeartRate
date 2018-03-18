@@ -21,11 +21,11 @@ from google.cloud import pubsub
 from oauth2client.client import GoogleCredentials
 import RPi.GPIO as io # import the GPIO library we just installed but call it "io"
 
-# constants - change to fit your project and location
-
+# ***change to fit your project***
 project="codelab-testing-198216"  # change project to your Project ID
 topic = "heartratedata"  # change topic to your PubSub topic name
 sensorID = "s-testing"  # change to a descriptive name for your sensor
+
 heartbeatsToCount = 10 # number of heart beats to sample before calculating BPM
 receiver_in = 23 # this is the GPIO number our receiver is connected to
 credentials = GoogleCredentials.get_application_default()
