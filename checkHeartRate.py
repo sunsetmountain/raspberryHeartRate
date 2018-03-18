@@ -67,6 +67,8 @@ def monitorForPulse():
         previousInput = 0
         lastPulseTime = 0
         thisPulseTime = 0
+        firstSampleTime = 0
+        lastSampleTime = 0
         instantBPM = 0
 
         while True:
@@ -77,8 +79,8 @@ def monitorForPulse():
                 previousInput = inputReceived
                 if totalSampleCounter == 0: # the first beat received since the program started
                     totalSampleCounter = 1
-                    firstBeatTime = time.time()
-                    lastPulseTime = firstBeatTime
+                    firstSampleTime = time.time()
+                    lastPulseTime = firstSampleTime
                 else:
                     totalSampleCounter = totalSampleCounter + 1
                     sampleCounter = sampleCounter + 1
@@ -88,10 +90,11 @@ def monitorForPulse():
                     print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM)
                     lastPulseTime = thisPulseTime
                 if sampleCounter == heartbeatsToCount:
+                    lastSampleTime = time.time()
                     sampleCounter = 0 # reset the sample counter
 
-                    # calculate beats per minute given the SAMPLE_COUNT
-                    sampleSeconds = time.time() - firstBeatTime
+                    # calculate beats per minute
+                    sampleSeconds = lastSampleTime - firstSampleTime
                     # print 'Sample Seconds: ' + str(sampleSeconds)
                     sampleSecondsPerBeat = sampleSeconds/(heartbeatsToCount - 1)
                	    # print 'Sample Seconds Per Beat: ' + str(sampleSecondsPerBeat)
@@ -104,7 +107,7 @@ def monitorForPulse():
                     publish_message(project, topic, heartrateJSON)
                     print currentBPM
 
-                    firstBeatTime = time.time()
+                    firstSampleTime = lastSampleTime
 
             elif inputReceived == 1 and previousInput == 1:
                 previousInput = inputReceived
