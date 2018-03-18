@@ -87,7 +87,7 @@ def monitorForPulse():
                     thisPulseTime = time.time()
                     instantBPM = 60/(thisPulseTime - lastPulseTime)
                     # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
-                    print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM)
+                    print "Total beats: " + str(totalSampleCounter) + ", instantBPM: " + str(instantBPM) + ", time: " + str(thisPulseTime)
                     lastPulseTime = thisPulseTime
                 if sampleCounter == heartbeatsToCount:
                     lastSampleTime = time.time()
