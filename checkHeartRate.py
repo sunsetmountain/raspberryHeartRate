@@ -78,7 +78,8 @@ def monitorForPulse():
                 else:
                     totalSampleCounter = totalSampleCounter + 1
                     sampleCounter = sampleCounter + 1
-                # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
+                    # print "Total beats: " + str(totalSampleCounter) + ", current samples: " + str(sampleCounter)
+                    print "Total beats: " + str(totalSampleCounter) + ", time: " + str(time.time())
                 if sampleCounter == heartbeatsToCount:
                     sampleCounter = 0 # reset the sample counter
 
