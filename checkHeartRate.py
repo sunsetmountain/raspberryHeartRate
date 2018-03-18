@@ -59,6 +59,15 @@ def createJSON(id, timestamp, heartrate):
     json_str = json.dumps(data)
     return json_str
 
+def calcBPM(startTime, endTime):   
+    sampleSeconds = startTime - endTime  # calculate time gap between first and last heartbeat
+    bpm = (60/sampleSeconds)*(heartbeatsToCount)
+    currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    heartrateJSON = createJSON(sensorID, currentTime, bpm)
+    publish_message(project, topic, heartrateJSON)
+    time.sleep(5) # wait to allow the message publication process to finish (it can interfere with capturing heart beat signals)
+
+ 
 def monitorForPulse():
     totalSampleCounter = 0
     sampleCounter = -1
@@ -94,19 +103,7 @@ def monitorForPulse():
                     if sampleCounter == heartbeatsToCount: # time to calculate the average BPM
                         sampleCounter = -1 # reset the sample counter
                         lastSampleTime = lastPulseTime # set the time the last beat was detected
-
-                        # calculate time gap between first and last heartbeat
-                        sampleSeconds = lastSampleTime - firstSampleTime
-                        bpm = (60/sampleSeconds)*(heartbeatsToCount)
-
-                        # show beats per minute
-                        currentBPM = str(bpm) + ' bpm'
-                        currentTime = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-                        heartrateJSON = createJSON(sensorID, currentTime, currentBPM)
-                        publish_message(project, topic, heartrateJSON)
-                        # print currentBPM
-                        print "seconds: " + str(sampleSeconds)
-                        time.sleep(5) # wait to allow the message publication process to finish (it can interfere with capturing heart beat signals)
+                        calcBPM(firstSampleTime, lastSampleTime)
                         
             previousInput = inputReceived
 
