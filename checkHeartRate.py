@@ -25,8 +25,8 @@ from tendo import singleton
 me = singleton.SingleInstance() # will sys.exit(-1) if another instance is running
 
 # ***change to fit your project***
-project="codelab-testing-198216"  # change project to your Project ID
-topic = "heartratedata"  # change topic to your PubSub topic name
+project="your-project-name"  # change project to your Project ID
+topic = "your-topic-name"  # change topic to your PubSub topic name
 sensorID = "s-testing"  # change to a descriptive name for your sensor
 rejectBPM = 45 # reject anything that is below this BPM threshold
 heartbeatsToCount = 10 # number of heart beats to sample before calculating an average BPM
